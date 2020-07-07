@@ -1,83 +1,143 @@
-﻿
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <!-- Required meta tags -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css">
-    <title>AI Fitness Trainer</title>
-    <link rel="stylesheet" href="style.css"> 
+    <title>Squrt</title>
+    <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-   <div class="container mt-5">
-            <div class="center">
-                <div class="headline">
-                    <div class="small">Squat</div>Counter
-                </div>
-                <div class="circle-big">
-                    <div class="text">
-                        <span id="counter">0</span><div class="small">개</div>
-                    </div>
-                </div>
+    <div class="container mt-5 no-padding">
+        <div class="center" style="background-color:#C0C0C0; opacity: 0.8;">
+            <div class="headline" >
+                <div class="small">Squat</div>Counter
             </div>
-        <h1>AI Trainer</h1>
-        <button class="btn btn-primary"type="button" onclick="init()">Start</button>
-        <div><canvas id="canvas" width="600" height="900"></canvas></div>
+            <div class="circle-big">
+                <div class="text">
+                    <span id="counter">0</span>개</br></br>
+                    <button class="btn btn-primary" id="startendbtn" type="button" onclick="init()">Start</button>
+                </div>
+
+            </div>
+        </div>
+        <div><canvas id="canvas" width="600" height="800" style="margin: 0; padding: 0;"></canvas></div>
+        <!-- 여기가 수치뜨는곳-->
         <div id="label-container"></div>
+
     </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
     <script type="text/javascript">
+        var initflag = true;
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = new String(date.getMonth() + 1);
+        var day = new String(date.getDate());
+
+        // 한자리수일 경우 0을 채워준다.
+        if (month.length == 1) {
+            month = "0" + month;
+        }
+        if (day.length == 1) {
+            day = "0" + day;
+        }
+        var nowday = (year + '-' + month + "-" + day);
+        console.log(nowday);
+
+
+
         // More API functions here:
         // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
 
         // the link to your model provided by Teachable Machine export panel
         const URL = "./my_model/";
         let model, webcam, ctx, labelContainer, maxPredictions;
+        function finsh() {
+            window.close();
+        }
+
+
 
         async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
+            initflag = !initflag
+            if (!initflag) {
 
-            // load the model and metadata
-            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-            // Note: the pose library adds a tmPose object to your window (window.tmPose)
-            model = await tmPose.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
+                  $('#startendbtn').text("cancle");
 
-            // Convenience function to setup a webcam
-            const size = 700;
-            const flip = true; // whether to flip the webcam
-            webcam = new tmPose.Webcam(size, size, flip); // width, height, flip
-            await webcam.setup(); // request access to the webcam
-            await webcam.play();
-            window.requestAnimationFrame(loop);
+                const modelURL = URL + "model.json";
+                const metadataURL = URL + "metadata.json";
 
-            // append/get elements to the DOM
-            const canvas = document.getElementById("canvas");
-            canvas.width = size; canvas.height = size;
-            ctx = canvas.getContext("2d");
-            labelContainer = document.getElementById("label-container");
-            for (let i = 0; i < maxPredictions; i++) { // and class labels
-                labelContainer.appendChild(document.createElement("div"));
+                // load the model and metadata
+                // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+                // Note: the pose library adds a tmPose object to your window (window.tmPose)
+                model = await tmPose.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+
+                // Convenience function to setup a webcam
+                const size = 700;
+                const flip = true; // whether to flip the webcam
+                webcam = new tmPose.Webcam(size, size, flip); // width, height, flip
+                await webcam.setup(); // request access to the webcam
+                await webcam.play();
+                window.requestAnimationFrame(loop);
+
+                // append/get elements to the DOM
+                const canvas = document.getElementById("canvas");
+                canvas.width = size; canvas.height = size;
+                ctx = canvas.getContext("2d");
+                labelContainer = document.getElementById("label-container");
+                for (let i = 0; i < maxPredictions; i++) { // and class labels
+                    labelContainer.appendChild(document.createElement("div"));
+                }
+            } else {
+                document.getElementById("startendbtn").value = "sssslose";
+                if (count > 0) {
+                    $('#startendbtn').text("save and close");
+
+
+                    $('#startendbtn').on('click', function () {
+                        var url = "http://192.168.0.36:8080/sixone/schedule.insert?count=" + $('#counter').text() + "&setCount=1&start=" + nowday + "&id=%s&title=스쿼트";
+                        openiframe(url);
+                        setTimeout(function () {
+                            window.close();
+                        }, 900);
+
+
+                    });
+
+                }
             }
         }
+        function openiframe(url) {
+            var aIframe = document.createElement("iframe");
+
+            aIframe.setAttribute("id", "id값");
+            aIframe.setAttribute("name", "name값");
+
+            aIframe.style.width = "1px";
+            aIframe.style.height = "1px";
+            aIframe.src = url;
+
+            document.getElementsByTagName("body")[0].appendChild(aIframe);
+        }
+
 
         async function loop(timestamp) {
             webcam.update(); // update the webcam frame
@@ -93,22 +153,22 @@
             const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
             // Prediction 2: run input through teachable machine classification model
             const prediction = await model.predict(posenetOutput);
-            if (prediction[0].probability.toFixed(2) > 0.90) {
+            if (prediction[0].probability.toFixed(2) > 0.80) {
                 if (status == "squat") {
                     count++
                     var audio = new Audio(count % 10 + '.mp3');
                     audio.play();
-                    progress = progress-32.7
-                    if(progress <= 0) {
-                        progress = 327-32.7
+                    progress = progress - 32.7
+                    if (progress <= 0) {
+                        progress = 327 - 32.7
                     }
                     $('.progress').css('stroke-dashoffset', progress);
                     $('#counter').html(count);
                 }
                 status = "stand"
-            } else if (prediction[1].probability.toFixed(2) == 1.00) {
+            } else if (prediction[1].probability.toFixed(2) > 0.90) {
                 status = "squat"
-            } else if (prediction[2].probability.toFixed(2) == 1.00) {
+            } else if (prediction[2].probability.toFixed(2) > 0.90) {
                 if (status == "squat" || status == "stand") {
                     var audio = new Audio('again.mp3');
                     audio.play();
@@ -137,7 +197,13 @@
             }
         }
     </script>
+    <style>
 
+        .no-padding {
+            padding-top: 0 !important;
+        }
+    </style>
 </body>
+
 
 </html>
